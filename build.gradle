@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'java-gradle-plugin'
+//    id 'io.github.cvn.gniremapper' version '1.0-SNAPSHOT'
+}
+
+group = 'io.github.cvn'
+version = '1.0-SNAPSHOT'
+gradlePlugin {
+    plugins {
+        gniremapper {
+            id = 'io.github.cvn.gniremapper'
+            implementationClass = 'io.github.cvn.gniremapper.GNIRemapper'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        name = "Sonatype"
+        url = "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+}
+
+dependencies {
+    implementation gradleApi()
+
+    api "org.ow2.asm:asm:9.2"
+    implementation "org.ow2.asm:asm-util:9.2"
+    implementation "org.ow2.asm:asm-commons:9.2"
+
+    implementation 'net.fabricmc:tiny-remapper:0.10.3+local'
+    implementation 'net.md-5:SpecialSource:1.11.4'
+}
+
+publishing {
+    // publish to mavenLocal()
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
