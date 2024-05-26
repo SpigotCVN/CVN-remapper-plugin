@@ -1,4 +1,4 @@
-package io.github.cvn.gniremapper;
+package io.github.cvn.remapper;
 
 import net.fabricmc.tinyremapper.NonClassCopyMode;
 import net.fabricmc.tinyremapper.OutputConsumerPath;
@@ -20,7 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.jar.JarFile;
 
-public class GNIRemapper implements Plugin<Project> {
+public class CVNRemapper implements Plugin<Project> {
     public static final String MAPPINGS_URL = "https://raw.githubusercontent.com/Cross-Version-NMS/CVN-mappings/main/mappings/%s.tiny";
     public static       String MINECRAFT_VERSION;
     public static final String NAMESPACE_FROM = "official";

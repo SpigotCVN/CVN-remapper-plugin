@@ -9,9 +9,9 @@ group = 'io.github.cvn'
 version = '1.0-SNAPSHOT'
 gradlePlugin {
     plugins {
-        gniremapper {
-            id = 'io.github.cvn.gniremapper'
-            implementationClass = 'io.github.cvn.gniremapper.GNIRemapper'
+        cvnremapper {
+            id = 'io.github.cvn.remapper'
+            implementationClass = 'io.github.cvn.remapper.CVNRemapper'
         }
     }
 }
