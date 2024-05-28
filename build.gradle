@@ -2,16 +2,15 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'java-gradle-plugin'
-//    id 'io.github.cvn.gniremapper' version '1.0-SNAPSHOT'
 }
 
-group = 'io.github.cvn'
+group = 'io.github.spigotcvn'
 version = '1.0-SNAPSHOT'
 gradlePlugin {
     plugins {
         cvnremapper {
-            id = 'io.github.cvn.remapper'
-            implementationClass = 'io.github.cvn.remapper.CVNRemapper'
+            id = 'io.github.spigotcvn.remapper'
+            implementationClass = 'io.github.spigotcvn.remapper.CVNRemapper'
         }
     }
 }

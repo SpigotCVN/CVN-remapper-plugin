@@ -1,4 +1,4 @@
-package io.github.cvn.remapper;
+package io.github.spigotcvn.remapper;
 
 import net.fabricmc.tinyremapper.NonClassCopyMode;
 import net.fabricmc.tinyremapper.OutputConsumerPath;
