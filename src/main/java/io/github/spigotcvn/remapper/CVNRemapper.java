@@ -31,6 +31,7 @@ public class CVNRemapper implements Plugin<Project> {
 
     private File tmpDir;
     private File libsDir;
+    private File mappingsDir;
     private File[] tmpJars;
 
     @Override
@@ -42,6 +43,10 @@ public class CVNRemapper implements Plugin<Project> {
         libsDir = new File(project.getLayout().getBuildDirectory().get().getAsFile().getAbsolutePath(), "libs");
         libsDir.getParentFile().mkdirs();
         libsDir.mkdir();
+
+        mappingsDir = new File(project.getLayout().getBuildDirectory().get().getAsFile().getAbsolutePath(), "mappings");
+        mappingsDir.getParentFile().mkdirs();
+        mappingsDir.mkdir();
 
         TaskProvider<Task> downloadMappingsTask = project.getTasks().register("downloadMappings", task -> {
             task.doLast(task1 -> {
@@ -109,7 +114,7 @@ public class CVNRemapper implements Plugin<Project> {
 
     public void fullyRemap(Jar jarTask) throws IOException {
         // find the mappings file in the local maven repository
-        File mappings = new File(
+        File mojMaps = new File(
                 System.getProperty("user.home") +
                         "/.m2/repository/" +
                         SPIGOT_GROUP.replace(".", "/") +
@@ -117,8 +122,34 @@ public class CVNRemapper implements Plugin<Project> {
                         MINECRAFT_VERSION + "-R0.1-SNAPSHOT/" +
                         "minecraft-server-" + MINECRAFT_VERSION + "-R0.1-SNAPSHOT-maps-mojang.txt"
         );
-        if (!mappings.exists()) {
-            throw new RuntimeException("Could not find the mappings file in the local maven repository\n" +
+        if (!mojMaps.exists()) {
+            throw new RuntimeException("Could not find the mojang mappings file in the local maven repository\n" +
+                    "Please make sure you have ran the BuildTools with the --remapped option");
+        }
+
+        File spigotMappings = new File(
+                System.getProperty("user.home") +
+                        "/.m2/repository/" +
+                        SPIGOT_GROUP.replace(".", "/") +
+                        "/minecraft-server/" +
+                        MINECRAFT_VERSION + "-R0.1-SNAPSHOT/" +
+                        "minecraft-server-" + MINECRAFT_VERSION + "-R0.1-SNAPSHOT-maps-spigot.csrg"
+        );
+        if (!spigotMappings.exists()) {
+            throw new RuntimeException("Could not find the spigot mappings file in the local maven repository\n" +
+                    "Please make sure you have ran the BuildTools with the --remapped option");
+        }
+
+        File spigotMemberMappings = new File(
+                System.getProperty("user.home") +
+                        "/.m2/repository/" +
+                        SPIGOT_GROUP.replace(".", "/") +
+                        "/minecraft-server/" +
+                        MINECRAFT_VERSION + "-R0.1-SNAPSHOT/" +
+                        "minecraft-server-" + MINECRAFT_VERSION + "-R0.1-SNAPSHOT-maps-spigot-members.csrg"
+        );
+        if (!spigotMemberMappings.exists()) {
+            throw new RuntimeException("Could not find the spigot member mappings file in the local maven repository\n" +
                     "Please make sure you have ran the BuildTools with the --remapped option");
         }
 
@@ -150,16 +181,29 @@ public class CVNRemapper implements Plugin<Project> {
 
         File resultTmp = new File(tmpDir, jarTask.getArchiveFile().get().getAsFile().getName());
         File officialTmp = new File(tmpDir, jarTask.getArchiveFile().get().getAsFile().getName().replace(".jar", "-official.jar"));
+        File spigotTmp = new File(tmpDir, jarTask.getArchiveFile().get().getAsFile().getName().replace(".jar", "-spigot.jar"));
 
-        tmpJars = new File[] {originalTmp, officialTmp, resultTmp};
+        tmpJars = new File[] {originalTmp, spigotTmp, resultTmp};
 
-        remapJarToObfuscated(mappings, jarTask.getArchiveFile().get().getAsFile(), officialTmp);
+        remapJarToObfuscated(mojMaps, jarTask.getArchiveFile().get().getAsFile(), officialTmp);
+
+        remapJarToSpigot(
+                spigotMappings,
+                spigotMemberMappings,
+                mojMaps,
+                new File(mappingsDir, "mappings-" + MINECRAFT_VERSION + "-spigot-fields.csrg"),
+                officialTmp,
+                spigotTmp
+        );
+
         remapJarToIntermediary(classpathJar.toPath(), officialTmp, resultTmp);
 
         System.out.println("Finished remapping jars. Jar:");
         System.out.println("Intermediary mapped (to be used with CVN): " + resultTmp.getName());
-        System.out.println("Official/Obfuscated (to be used like normal): " + officialTmp.getName());
+        System.out.println("Spigot mapped (to be used like normal): " + spigotTmp.getName());
         System.out.println("Original (Unmapped): " + originalTmp.getName());
+
+        Files.deleteIfExists(officialTmp.toPath());
     }
 
     private void moveJars() {
@@ -186,7 +230,7 @@ public class CVNRemapper implements Plugin<Project> {
     private void downloadMappings() throws IOException {
         URL url = new URL(String.format(MAPPINGS_URL, MINECRAFT_VERSION));
         File mappingFile = new File(
-                "build" + File.separator + "mappings",
+                mappingsDir,
                 "mappings-" + MINECRAFT_VERSION + "-intermediary.tiny"
         );
 
@@ -230,6 +274,33 @@ public class CVNRemapper implements Plugin<Project> {
         remapper.remapJar(net.md_5.specialsource.Jar.init(jarFile), resultJarFile);
 
         System.out.println("Remapped jar to obfuscated mappings to: " + resultJarFile.getAbsolutePath());
+    }
+
+    void remapJarToSpigot(File mappings, File memberMappings, File mojmaps, File fieldMappings,
+                          File jarFile, File resultJarFile) throws IOException {
+        System.out.println("Remapping jar to spigot mappings...");
+
+        MapUtil mapUtil = new MapUtil();
+        mapUtil.loadBuk(mappings);
+        if (!memberMappings.exists()) {
+            mapUtil.makeFieldMaps(mojmaps, memberMappings, true);
+        }
+        mapUtil.makeFieldMaps(mojmaps, fieldMappings, false);
+
+        File combinedMaps = new File(mappingsDir, "mappings-" + MINECRAFT_VERSION + "-spigot-combined.csrg");
+        mapUtil.makeCombinedMaps(combinedMaps, memberMappings);
+
+        JarMapping jarMapping = new JarMapping();
+        BufferedReader reader = new BufferedReader(new FileReader(combinedMaps));
+        jarMapping.loadMappings(reader, null, null, false);
+        reader.close();
+
+        System.out.println("Loaded mappings from: " + combinedMaps.getAbsolutePath());
+
+        JarRemapper remapper = new JarRemapper(jarMapping);
+        remapper.remapJar(net.md_5.specialsource.Jar.init(jarFile), resultJarFile);
+
+        System.out.println("Remapped jar to spigot mappings to: " + resultJarFile.getAbsolutePath());
     }
 
     /**
