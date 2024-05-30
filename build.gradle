@@ -27,9 +27,9 @@ repositories {
 dependencies {
     implementation gradleApi()
 
-    api "org.ow2.asm:asm:9.2"
-    implementation "org.ow2.asm:asm-util:9.2"
-    implementation "org.ow2.asm:asm-commons:9.2"
+    api "org.ow2.asm:asm:9.7"
+    implementation "org.ow2.asm:asm-util:9.7"
+    implementation "org.ow2.asm:asm-commons:9.7"
 
     implementation 'net.fabricmc:tiny-remapper:0.10.3+local'
     implementation 'net.md-5:SpecialSource:1.11.4'
