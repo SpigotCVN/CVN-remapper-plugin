@@ -1,0 +1,4 @@
+name: cvn-dummy-${uuid}
+version: '0'
+main: DummyJavaPlugin
+api-version: '1.13'

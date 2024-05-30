@@ -1,4 +1,4 @@
-package io.github.spigotcvn.remapper;
+package io.github.spigotcvn.remapper.util;
 
 /*
  * This file has been copied from the Spigot BuildTools project.
