@@ -29,15 +29,17 @@ public class CVNRemapper implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        tmpDir = new File(project.getLayout().getBuildDirectory().get().getAsFile().getAbsolutePath(), "tmp");
+        String buildDirPath = project.getLayout().getBuildDirectory().get().getAsFile().getAbsolutePath();
+
+        tmpDir = new File(buildDirPath, "tmp");
         tmpDir.getParentFile().mkdirs();
         tmpDir.mkdir();
 
-        libsDir = new File(project.getLayout().getBuildDirectory().get().getAsFile().getAbsolutePath(), "libs");
+        libsDir = new File(buildDirPath, "libs");
         libsDir.getParentFile().mkdirs();
         libsDir.mkdir();
 
-        mappingsDir = new File(project.getLayout().getBuildDirectory().get().getAsFile().getAbsolutePath(), "mappings");
+        mappingsDir = new File(buildDirPath, "mappings");
         mappingsDir.getParentFile().mkdirs();
         mappingsDir.mkdir();
 
