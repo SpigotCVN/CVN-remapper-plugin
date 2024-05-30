@@ -282,10 +282,12 @@ public class CVNRemapper implements Plugin<Project> {
 
         MapUtil mapUtil = new MapUtil();
         mapUtil.loadBuk(mappings);
-        if (!memberMappings.exists()) {
-            mapUtil.makeFieldMaps(mojmaps, memberMappings, true);
+        if(mojmaps != null && mojmaps.exists()) {
+            if (!memberMappings.exists()) {
+                mapUtil.makeFieldMaps(mojmaps, memberMappings, true);
+            }
+            mapUtil.makeFieldMaps(mojmaps, fieldMappings, false);
         }
-        mapUtil.makeFieldMaps(mojmaps, fieldMappings, false);
 
         File combinedMaps = new File(mappingsDir, "mappings-" + MINECRAFT_VERSION + "-spigot-combined.csrg");
         mapUtil.makeCombinedMaps(combinedMaps, memberMappings);
