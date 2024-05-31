@@ -22,7 +22,10 @@ public class JarUtil {
             // Iterate over all files in the unarchive directory and add them to the JAR
             Util.iterateOverFiles(file -> {
                 try {
-                    String entryName = unarchiveDir.toPath().relativize(file.toPath()).toString();
+                    String entryName = unarchiveDir.toPath()
+                        .relativize(file.toPath())
+                        .toString()
+                        .replaceAll("\\" + File.seperator, "/");
                     JarEntry entry = new JarEntry(entryName);
                     jos.putNextEntry(entry);
                     Files.copy(file.toPath(), jos);
