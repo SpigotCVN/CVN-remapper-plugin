@@ -25,7 +25,7 @@ public class JarUtil {
                     String entryName = unarchiveDir.toPath()
                         .relativize(file.toPath())
                         .toString()
-                        .replaceAll("\\" + File.seperator, "/");
+                        .replaceAll("\\" + File.separator, "/");
                     JarEntry entry = new JarEntry(entryName);
                     jos.putNextEntry(entry);
                     Files.copy(file.toPath(), jos);
