@@ -1,4 +1,0 @@
-name: NMSTestProject
-version: '${version}'
-main: me.andreasmelone.nmstestproject.NMSTestProject
-api-version: '1.20'
