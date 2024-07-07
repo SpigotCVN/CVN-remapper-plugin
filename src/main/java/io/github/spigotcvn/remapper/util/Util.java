@@ -10,7 +10,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Util {
-    public static void compileJavaFile(String javaFilePath, String outputDir, String... classpath) {
+    public static void compileJavaFile(String javaFilePath, String outputDir, int javaVersion, String... classpath) {
         String classpathString;
         // on windows the classpath separator is ; and on unix it's :
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
@@ -21,7 +21,9 @@ public class Util {
         System.out.println("Using classpath: " + classpathString);
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        int compilationResult = compiler.run(null, null, null, "-d", outputDir, "-cp", classpathString, javaFilePath);
+        int compilationResult = compiler.run(null, null, null,
+                "--release", String.valueOf(javaVersion), "-d", outputDir, "-cp", classpathString, javaFilePath
+        );
         if (compilationResult != 0) {
             throw new RuntimeException("Compilation failed for " + javaFilePath);
         }

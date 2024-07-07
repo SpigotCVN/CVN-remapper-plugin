@@ -49,28 +49,28 @@ public class RemapUtil {
      * @param resultJarFile The file to save the remapped jar to
      * @throws IOException If an error occurs while reading the jar file
      */
-    public static void remapJarToSpigot(File mappingsDir, File mappings, File memberMappings, File mojmaps, File fieldMappings,
+    public static void remapJarToSpigot(File mappingsDir, File mappings/*, File memberMappings*/, File mojmaps, File fieldMappings,
                           File jarFile, File resultJarFile) throws IOException {
         System.out.println("Remapping jar to spigot mappings...");
 
-        MapUtil mapUtil = new MapUtil();
-        mapUtil.loadBuk(mappings);
-        if(mojmaps != null && mojmaps.exists()) {
-            if (!memberMappings.exists()) {
-                mapUtil.makeFieldMaps(mojmaps, memberMappings, true);
-            }
-            mapUtil.makeFieldMaps(mojmaps, fieldMappings, false);
-        }
+//        MapUtil mapUtil = new MapUtil();
+//        mapUtil.loadBuk(mappings);
+//        if(mojmaps != null && mojmaps.exists()) {
+//            if (!memberMappings.exists()) {
+//                mapUtil.makeFieldMaps(mojmaps, memberMappings, true);
+//            }
+//            mapUtil.makeFieldMaps(mojmaps, fieldMappings, false);
+//        }
 
-        File combinedMaps = new File(mappingsDir, "mappings-" + CVNRemapper.MINECRAFT_VERSION + "-spigot-combined.csrg");
-        mapUtil.makeCombinedMaps(combinedMaps, memberMappings);
+//        File combinedMaps = new File(mappingsDir, "mappings-" + CVNRemapper.MINECRAFT_VERSION + "-spigot-combined.csrg");
+//        mapUtil.makeCombinedMaps(combinedMaps, memberMappings);
 
         JarMapping jarMapping = new JarMapping();
-        BufferedReader reader = new BufferedReader(new FileReader(combinedMaps));
+        BufferedReader reader = new BufferedReader(new FileReader(mappings));
         jarMapping.loadMappings(reader, null, null, false);
         reader.close();
 
-        System.out.println("Loaded mappings from: " + combinedMaps.getAbsolutePath());
+        System.out.println("Loaded mappings from: " + mappings.getAbsolutePath());
 
         JarRemapper remapper = new JarRemapper(jarMapping);
         remapper.remapJar(net.md_5.specialsource.Jar.init(jarFile), resultJarFile);

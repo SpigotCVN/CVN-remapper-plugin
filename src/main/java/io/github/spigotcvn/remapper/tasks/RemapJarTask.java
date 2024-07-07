@@ -64,18 +64,18 @@ public class RemapJarTask implements ITask {
                     "Please make sure you have ran the BuildTools with the --remapped option");
         }
 
-        File spigotMemberMappings = new File(
-                System.getProperty("user.home") +
-                        "/.m2/repository/" +
-                        CVNRemapper.SPIGOT_GROUP.replace(".", "/") +
-                        "/minecraft-server/" +
-                        CVNRemapper.MINECRAFT_VERSION + "-R0.1-SNAPSHOT/" +
-                        "minecraft-server-" + CVNRemapper.MINECRAFT_VERSION + "-R0.1-SNAPSHOT-maps-spigot-members.csrg"
-        );
-        if (!spigotMemberMappings.exists()) {
-            throw new RuntimeException("Could not find the spigot member mappings file in the local maven repository\n" +
-                    "Please make sure you have ran the BuildTools with the --remapped option");
-        }
+//        File spigotMemberMappings = new File(
+//                System.getProperty("user.home") +
+//                        "/.m2/repository/" +
+//                        CVNRemapper.SPIGOT_GROUP.replace(".", "/") +
+//                        "/minecraft-server/" +
+//                        CVNRemapper.MINECRAFT_VERSION + "-R0.1-SNAPSHOT/" +
+//                        "minecraft-server-" + CVNRemapper.MINECRAFT_VERSION + "-R0.1-SNAPSHOT-maps-spigot-members.csrg"
+//        );
+//        if (!spigotMemberMappings.exists()) {
+//            throw new RuntimeException("Could not find the spigot member mappings file in the local maven repository\n" +
+//                    "Please make sure you have ran the BuildTools with the --remapped option");
+//        }
 
         File classpathJar = new File(
                 System.getProperty("user.home") +
@@ -117,7 +117,7 @@ public class RemapJarTask implements ITask {
         RemapUtil.remapJarToSpigot(
                 plugin.getMappingsDir(),
                 spigotMappings,
-                spigotMemberMappings,
+//                spigotMemberMappings,
                 mojMaps,
                 new File(plugin.getMappingsDir(), "mappings-" + CVNRemapper.MINECRAFT_VERSION + "-spigot-fields.csrg"),
                 officialTmp,
