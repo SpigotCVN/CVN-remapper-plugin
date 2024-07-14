@@ -5,6 +5,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.DependencyArtifact;
+import org.gradle.api.artifacts.ExternalModuleDependency;
 
 import java.io.*;
 import java.util.*;
@@ -12,8 +14,7 @@ import java.util.*;
 public class CVNRemapper implements Plugin<Project> {
     public static final String MAPPINGS_URL = "https://raw.githubusercontent.com/Cross-Version-NMS/CVN-mappings/main/mappings/%s.tiny";
     public static       String MINECRAFT_VERSION;
-    public static final String NAMESPACE_FROM = "official";
-    public static final String NAMESPACE_TO = "intermediary";
+    public static      boolean USES_MOJMAPS = false;
 
     public static final String SPIGOT_GROUP = "org.spigotmc";
     public static final String SPIGOT_ARTIFACT = "spigot";
@@ -43,7 +44,7 @@ public class CVNRemapper implements Plugin<Project> {
         mappingsDir.getParentFile().mkdirs();
         mappingsDir.mkdir();
 
-        tasks.put("downloadMappings", new DownloadMappingsTask().init(this, project));
+        tasks.put("generateMappings", new GenerateMappingsTask().init(this, project));
         tasks.put("compileDummyJava", new CompileDummyJavaTask().init(this, project));
         tasks.put("remapJar", new RemapJarTask().init(this, project));
         tasks.put("moveExternalResources", new MoveExternalResourcesTask().init(this, project));
@@ -58,6 +59,11 @@ public class CVNRemapper implements Plugin<Project> {
 
             if (dependency.getGroup().equals(SPIGOT_GROUP) && dependency.getName().equals(SPIGOT_ARTIFACT)) {
                 MINECRAFT_VERSION = dependency.getVersion().replace("-R0.1-SNAPSHOT", "");
+
+                Set<DependencyArtifact> artifacts = ((ExternalModuleDependency) dependency).getArtifacts();
+                String classifier =
+                        artifacts.iterator().hasNext() ? artifacts.iterator().next().getClassifier() : null;
+                USES_MOJMAPS = Objects.equals(classifier, "remapped-mojang");
             }
         });
         if (MINECRAFT_VERSION == null) {
@@ -97,5 +103,9 @@ public class CVNRemapper implements Plugin<Project> {
 
     public void setFinalTmpJar(File finalTmpJar) {
         this.finalTmpJar = finalTmpJar;
+    }
+
+    public boolean getUsesMojmaps() {
+        return USES_MOJMAPS;
     }
 }

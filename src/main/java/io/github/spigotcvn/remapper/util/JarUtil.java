@@ -2,6 +2,7 @@ package io.github.spigotcvn.remapper.util;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -25,7 +26,7 @@ public class JarUtil {
                     String entryName = unarchiveDir.toPath()
                         .relativize(file.toPath())
                         .toString()
-                        .replaceAll("\\" + File.separator, "/");
+                        .replace(File.separator, "/");
                     JarEntry entry = new JarEntry(entryName);
                     jos.putNextEntry(entry);
                     Files.copy(file.toPath(), jos);
@@ -74,5 +75,47 @@ public class JarUtil {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static boolean isRelocated(File jarFile) throws IOException {
+        try (JarFile jar = new JarFile(jarFile)) {
+            Enumeration<JarEntry> entries = jar.entries();
+
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String name = entry.getName();
+
+                if (name.startsWith("net/minecraft/server/1_")) {
+                    return true;
+                }
+
+                if (name.startsWith("net/minecraft/server/") && !name.startsWith("net/minecraft/server/1_")) {
+                    return false;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static String getCBNotation(File jarFile) throws IOException {
+        try (JarFile jar = new JarFile(jarFile)) {
+            Enumeration<JarEntry> entries = jar.entries();
+
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String name = entry.getName();
+
+                if (name.startsWith("net/minecraft/server/")) {
+                    String newName = name.replace("net/minecraft/server/", "");
+                    String[] parts = newName.split("/");
+                    if (parts.length > 0) {
+                        return parts[0];
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

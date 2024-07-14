@@ -6,6 +6,7 @@ plugins {
 
 group = 'io.github.spigotcvn'
 version = '1.0-SNAPSHOT'
+
 gradlePlugin {
     plugins {
         cvnremapper {
@@ -13,6 +14,10 @@ gradlePlugin {
             implementationClass = 'io.github.spigotcvn.remapper.CVNRemapper'
         }
     }
+}
+
+java {
+    sourceCompatibility = targetCompatibility = 8
 }
 
 repositories {
@@ -27,10 +32,14 @@ repositories {
 dependencies {
     implementation gradleApi()
 
+    compileOnly "org.eclipse.jgit:org.eclipse.jgit:4.6.0.201612231935-r"
+
     api "org.ow2.asm:asm:9.7"
     implementation "org.ow2.asm:asm-util:9.7"
     implementation "org.ow2.asm:asm-commons:9.7"
 
+    implementation 'io.github.spigotcvn:mapping-merger:1.0-SNAPSHOT'
+    implementation 'io.github.spigotcvn:spigot-mapping-downloader:1.0-SNAPSHOT'
     implementation 'net.fabricmc:tiny-remapper:0.10.3+local'
     implementation 'net.md-5:SpecialSource:1.11.4'
 }

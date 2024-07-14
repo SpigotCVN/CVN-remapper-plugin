@@ -42,28 +42,12 @@ public class RemapUtil {
     /**
      * Remaps a jar file from the official mappings (or ones that are given) to Spigot mappings.
      * @param mappings     The spigot mappigns file to use, usually csrg
-     * @param memberMappings The spigot member mappings file to use, usually csrg
-     * @param mojmaps    The mojang mappings file to use, usually proguard
-     * @param fieldMappings The file into which field mappings will be written
      * @param jarFile     The jar file to remap
      * @param resultJarFile The file to save the remapped jar to
      * @throws IOException If an error occurs while reading the jar file
      */
-    public static void remapJarToSpigot(File mappingsDir, File mappings/*, File memberMappings*/, File mojmaps, File fieldMappings,
-                          File jarFile, File resultJarFile) throws IOException {
+    public static void remapJarToSpigotClass(File mappings, File jarFile, File resultJarFile) throws IOException {
         System.out.println("Remapping jar to spigot mappings...");
-
-//        MapUtil mapUtil = new MapUtil();
-//        mapUtil.loadBuk(mappings);
-//        if(mojmaps != null && mojmaps.exists()) {
-//            if (!memberMappings.exists()) {
-//                mapUtil.makeFieldMaps(mojmaps, memberMappings, true);
-//            }
-//            mapUtil.makeFieldMaps(mojmaps, fieldMappings, false);
-//        }
-
-//        File combinedMaps = new File(mappingsDir, "mappings-" + CVNRemapper.MINECRAFT_VERSION + "-spigot-combined.csrg");
-//        mapUtil.makeCombinedMaps(combinedMaps, memberMappings);
 
         JarMapping jarMapping = new JarMapping();
         BufferedReader reader = new BufferedReader(new FileReader(mappings));
@@ -78,8 +62,37 @@ public class RemapUtil {
         System.out.println("Remapped jar to spigot mappings to: " + resultJarFile.getAbsolutePath());
     }
 
+    public static void remapJarToSpigotFull(File classMappings, File memberMappings, File jarFile,
+                                            File resultFile) throws IOException {
+        MapUtil mapUtil = new MapUtil();
+        mapUtil.loadBuk(classMappings);
+
+        File combinedMappings = new File("build" + File.separator + "mappings",
+                "mappings-" + CVNRemapper.MINECRAFT_VERSION + "-spigot-combined.tiny");
+        mapUtil.makeCombinedMaps(combinedMappings, memberMappings);
+
+        remapJarToSpigotFull(combinedMappings, jarFile, resultFile);
+    }
+
+    public static void remapJarToSpigotFull(File combinedMappings, File jarFile,
+                                            File resultFile) throws IOException {
+        System.out.println("Remapping jar to spigot full mappings...");
+
+        JarMapping jarMapping = new JarMapping();
+        BufferedReader reader = new BufferedReader(new FileReader(combinedMappings));
+        jarMapping.loadMappings(reader, null, null, false);
+        reader.close();
+
+        System.out.println("Loaded mappings from: " + combinedMappings.getAbsolutePath());
+
+        JarRemapper remapper = new JarRemapper(jarMapping);
+        remapper.remapJar(net.md_5.specialsource.Jar.init(jarFile), resultFile);
+
+        System.out.println("Remapped jar to spigot full mappings to: " + resultFile.getAbsolutePath());
+    }
+
     /**
-     * Takes in an officially mapped jar (an obfuscated one) and remaps it to the intermediary mappings.
+     * Takes in a spigot mapped jar and remaps it to the intermediary mappings.
      * @param jarFile       The jar file to remap
      * @param resultJarFile The file to save the remapped jar to
      */
@@ -97,7 +110,8 @@ public class RemapUtil {
         System.out.println("Loaded mappings from: " + mappingFile.getAbsolutePath());
 
         TinyRemapper remapper = TinyRemapper.newRemapper()
-                .withMappings(TinyUtils.createTinyMappingProvider(mappingFile.toPath(), CVNRemapper.NAMESPACE_FROM, CVNRemapper.NAMESPACE_TO))
+                .withMappings(TinyUtils.createTinyMappingProvider(mappingFile.toPath(), "spigot", "intermediary"))
+                .ignoreConflicts(true)
                 .build();
 
         try (OutputConsumerPath outputConsumer = new OutputConsumerPath.Builder(resultJarFile.toPath()).build()) {

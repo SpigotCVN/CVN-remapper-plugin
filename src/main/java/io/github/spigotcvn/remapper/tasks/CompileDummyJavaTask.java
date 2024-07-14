@@ -1,7 +1,7 @@
 package io.github.spigotcvn.remapper.tasks;
 
-import io.github.spigotcvn.remapper.CVNRemapper;
 import io.github.spigotcvn.remapper.util.Util;
+import io.github.spigotcvn.remapper.CVNRemapper;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.JavaPluginExtension;

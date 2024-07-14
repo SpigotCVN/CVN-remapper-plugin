@@ -22,7 +22,9 @@ public class Util {
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         int compilationResult = compiler.run(null, null, null,
-                "--release", String.valueOf(javaVersion), "-d", outputDir, "-cp", classpathString, javaFilePath
+                "-target", String.valueOf(javaVersion), "-source", String.valueOf(javaVersion), // java version
+                "-d", outputDir, "-cp", classpathString,  // classpath and output
+                javaFilePath // java file to compile
         );
         if (compilationResult != 0) {
             throw new RuntimeException("Compilation failed for " + javaFilePath);
